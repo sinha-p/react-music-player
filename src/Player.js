@@ -44,6 +44,9 @@ class Player extends Component {
         var self = this;
         this._player.addEventListener("loadedmetadata", function() {
             console.log("loaded: ",self._player.currentTime);
+            self.setState({
+                currentTime: self._player.currentTime
+            })
         });
     }
 
@@ -54,16 +57,21 @@ class Player extends Component {
             "fa-play": !this.state.is_playing,
             "fa-pause": this.state.is_playing
         };
+        var current_time;
+        if(this._player) {
+            current_time = this._player.currentTime;
+        }
         return (
             <div className="player">
                 <span className="controls">
                     <span className="control_btn"><i className="fa fa-backward white-text"></i></span>
                     <span className="control_btn"><i className={ this.getClasses(allClass) } onClick={this.togglePlay.bind(this)}></i></span>
                     <span className="control_btn"><i className="fa fa-forward white-text"></i></span>
+                    <span className="control_btn white-text">{this.formatTime(current_time)}</span>
                 </span>
                 <span className="progress">
                     <div className="progress_bar_wrapper">
-                        <div className="progress_bar" onClick={this.updatePosition(this)} >
+                        <div className="progress_bar" onClick={this.updatePosition} >
                             <div className="progress_status" style={{width: this.state.progress + '%'}} >
                                 <div className="progress_status_head">
                                 </div>
@@ -89,7 +97,35 @@ class Player extends Component {
     }
 
     updatePosition = (ele) => {
-        console.log(ele);
+        console.log(ele.target.offsetWidth,ele.target.offsetHeight);
+        console.log(ele.pageX, ele.target.offsetRight);
+    }
+
+    formatTime = (t) => {
+        t=Math.floor(t);
+        let h='', m='', s='';
+        if(t>=3600){
+            h+=t/3600;
+            h=(h<10)?'0'+h:h;
+            t=t%3600;
+            m+=t/60;
+            m=(m<10)?'0'+m:m;
+            s+=t;
+        } else if(t>=60&&t<3600){
+            m+=t/60;
+            m=(m<10)?'0'+m:m;
+            s+=t%60;
+            s=(s<10)?'0'+s:s;
+        } else {
+            s+=t;
+            s=(s<10)?'0'+s:s;
+        }
+        let ans=h+':'+m+':'+s;
+        if(h==='')
+            ans=m+':'+s;
+        if(m==='')
+            ans='00'+':'+s;
+        return ans;
     }
 }
 
